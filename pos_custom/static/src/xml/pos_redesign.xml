@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-extend="PosTicket">
+        <t t-jquery='.receipt-total' t-operation='replace'>
+            <table class='receipt-total'>
+                <tr>
+                    <t t-if="order.get_total_discount() > 0">
+                        <td>Discount:</td>
+                        <td class="pos-right-align">
+                            <t t-esc="widget.format_currency(order.get_total_discount())"/>
+                        </td>
+                    </t>
+                </tr>
+                <tr>
+                    <td>Subtotal:</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(order.get_total_without_tax())"/>
+                    </td>
+                </tr>
+                <t t-foreach="order.get_tax_details()" t-as="taxdetail">
+                    <tr>
+                        <td><t t-esc="taxdetail.name" /></td>
+                        <td class="pos-right-align">
+                            <t t-esc="widget.format_currency(taxdetail.amount)" />
+                        </td>
+                    </tr>
+                </t>
+                <tr class="emph">
+                    <td>Total:</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
+                    </td>
+                </tr>
+            </table>
+        </t>
+        <t t-jquery='.receipt-change' t-operation="after">
+            <table>
+                <colgroup>
+                    <col width='40%' />
+                    <col width='60%'/>
+                </colgroup>
+                <tr>
+                    <td>
+                        <strong>Cantidad en letras:</strong>
+                    </td>
+                    <td style="text-align: right;text-transform: capitalize;">
+                        <!-- <t t-esc="order.numberToWords(widget.format_currency_no_symbol(order.get_total_with_tax()))" /> -->
+                        <t t-esc="order.numletras(order.get_total_with_tax())" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Total de productos:</td>
+                    <td style="text-align: right;">
+                        <t t-set="totalproductos" t-value="0"></t>
+                        <t t-foreach="orderlines" t-as="orderline">
+                            <t t-set="totalproductos" t-value="totalproductos+orderline.get_quantity()"></t>
+                        </t>
+                        <span t-esc="totalproductos" />
+                    </td>
+                </tr>
+            </table>
+        </t>
+    </t>
+
+    <t t-name="Product">
+        <span class='product' t-att-data-product-id="product.id">
+            <div class="product-img">
+                <img t-att-src='image_url' />
+                <t t-if="!product.to_weight">
+                    <t t-if="product.price.toFixed(4) != product.list_price.toFixed(4)">
+                        <strike class="price-tag">
+                            <t t-esc="widget.format_currency(product.list_price,'Product Price')"/>
+                        </strike>
+                        <span class="price-tag" style="top: 20px">
+                            <t t-esc="widget.format_currency(product.price,'Product Price')"/>
+                        </span>
+                    </t>
+                    <t t-if="product.price.toFixed(4) == product.list_price.toFixed(4)">
+                        <span class="price-tag">
+                            <t t-esc="widget.format_currency(product.price,'Product Price')"/>
+                        </span>
+                    </t>
+                </t>
+                <t t-if="product.to_weight">
+                    <t t-if="product.price.toFixed(4) != product.list_price.toFixed(4)">
+                        <strike class="price-tag">
+                            <t t-esc="widget.format_currency(product.list_price,'Product Price')+'/'+widget.pos.units_by_id[product.uom_id[0]].name"/>
+                        </strike>
+                        <span class="price-tag" style="top: 20px">
+                            <t t-esc="widget.format_currency(product.price,'Product Price')+'/'+widget.pos.units_by_id[product.uom_id[0]].name"/>
+                        </span>
+                    </t>
+                    <t t-if="product.price.toFixed(4) == product.list_price.toFixed(4)">
+                        <span class="price-tag">
+                            <t t-esc="widget.format_currency(product.price,'Product Price')+'/'+widget.pos.units_by_id[product.uom_id[0]].name"/>
+                        </span>
+                    </t>
+                </t>
+            </div>
+            <div class="product-name">
+                <t t-esc="product.display_name"/>
+            </div>
+        </span>
+    </t>
+</templates>
